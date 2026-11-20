@@ -1,0 +1,1 @@
+/* Test worker used to exercise the watchdog. */
