@@ -1,0 +1,21 @@
+# C derleme çıktıları
+*.o
+*.d
+/build/
+
+# Derlenen programlar
+/watchdog
+/worker
+/workers/worker
+
+# Çalışma sırasında oluşan dosyalar
+*.log
+*.pid
+/core
+/core.[0-9]*
+
+# Editör ve işletim sistemi dosyaları
+*.swp
+*~
+.DS_Store
+Thumbs.db
