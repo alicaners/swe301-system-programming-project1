@@ -77,3 +77,62 @@ int sm_init(void)
     }
     return 0;
 }
+
+void sm_wait_event(void)
+{
+    sigset_t blocked;
+    sigset_t old_mask;
+
+    sigemptyset(&blocked);
+    sigaddset(&blocked, SIGINT);
+    sigaddset(&blocked, SIGTERM);
+    sigaddset(&blocked, SIGUSR1);
+    sigaddset(&blocked, SIGCHLD);
+    sigaddset(&blocked, SIGALRM);
+
+    /* Block our signals so none can slip in between the flag check and the
+     * sleep; a signal that arrives now stays pending instead of being lost. */
+    sigprocmask(SIG_BLOCK, &blocked, &old_mask);
+
+    if (!g_shutdown && !g_child && !g_alarm && !g_status) {
+        /* Atomically restores the old mask and sleeps. A pending signal is
+         * delivered right away, so the wake-up cannot be missed. */
+        sigsuspend(&old_mask);
+    }
+
+    /* Restore the original mask so the children do not inherit blocked
+     * signals through fork()/exec(). */
+    sigprocmask(SIG_SETMASK, &old_mask, NULL);
+}
+
+/* Returns 1 and clears the flag if it was set, 0 otherwise. The flag is
+ * cleared before the caller does the work, so a signal arriving meanwhile
+ * raises it again and is not lost. */
+static int take_flag(volatile sig_atomic_t *flag)
+{
+    if (!*flag) {
+        return 0;
+    }
+    *flag = 0;
+    return 1;
+}
+
+int sm_shutdown_requested(void)
+{
+    return g_shutdown ? 1 : 0;
+}
+
+int sm_take_child_event(void)
+{
+    return take_flag(&g_child);
+}
+
+int sm_take_alarm_event(void)
+{
+    return take_flag(&g_alarm);
+}
+
+int sm_take_status_request(void)
+{
+    return take_flag(&g_status);
+}
