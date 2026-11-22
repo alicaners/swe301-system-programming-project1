@@ -7,18 +7,78 @@
  */
 
 #include <stdio.h>
+#include <time.h>
 
 #include "logger.h"
 #include "process_manager.h"
 #include "signal_manager.h"
 
-/* Stops the workers: no new launches, no timer, then ask them to terminate. */
+/* Pause between two checks while waiting for the workers to exit: 50 ms. */
+#define POLL_INTERVAL_NS 50000000L
+
+/* Safety limit for the wait after SIGKILL: 100 polls of 50 ms = 5 seconds. */
+#define KILL_WAIT_POLLS 100
+
+/* Sleeps for one poll interval. A signal such as SIGCHLD wakes it up early. */
+static void sleep_poll(void)
+{
+    struct timespec ts = { 0, POLL_INTERVAL_NS };
+
+    nanosleep(&ts, NULL);
+}
+
+/* Returns 1 if the monotonic clock has reached the deadline. */
+static int deadline_passed(const struct timespec *deadline)
+{
+    struct timespec now;
+
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return now.tv_sec > deadline->tv_sec ||
+           (now.tv_sec == deadline->tv_sec && now.tv_nsec >= deadline->tv_nsec);
+}
+
+/*
+ * Stops the workers: no new launches, no timer, SIGTERM to all, then wait up
+ * to SHUTDOWN_TIMEOUT_SEC seconds. Workers that are still alive after that
+ * are killed with SIGKILL and collected.
+ */
 static void shutdown_workers(const char *reason)
 {
+    struct timespec deadline;
+    int polls;
+
     logger_log("SHUTDOWN_STARTED", "%s", reason);
     pm_stop_launching();
     pm_stop_timer();
     pm_terminate_all();
+
+    clock_gettime(CLOCK_MONOTONIC, &deadline);
+    deadline.tv_sec += SHUTDOWN_TIMEOUT_SEC;
+
+    while (!deadline_passed(&deadline)) {
+        pm_reap_children();
+        if (pm_running_count() == 0) {
+            break;
+        }
+        sleep_poll();
+    }
+
+    pm_reap_children();
+    if (pm_running_count() > 0) {
+        logger_log("ERROR", "workers still running after %d s, sending SIGKILL",
+                   SHUTDOWN_TIMEOUT_SEC);
+        pm_kill_remaining();
+        for (polls = 0; polls < KILL_WAIT_POLLS; polls++) {
+            pm_reap_children();
+            if (pm_running_count() == 0) {
+                break;
+            }
+            sleep_poll();
+        }
+        if (pm_running_count() > 0) {
+            logger_log("ERROR", "workers could not be collected after SIGKILL");
+        }
+    }
 }
 
 int main(void)
