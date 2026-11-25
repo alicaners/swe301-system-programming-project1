@@ -89,8 +89,9 @@ controlled-shutdown variants.
 
 | Contributor | Module |
 | --- | --- |
-| Student 1 | Main program, signal handling, and graceful shutdown |
-| Student 2 | Child process management, restart limit, and periodic checks |
-| Student 3 | Logging, status reporting, Makefile, tests, and documentation |
-
+| Student 1: Ali Caner Sezer| Main program, signal handling, and graceful shutdown |
+| Student 2: Faruk Turnalı  | Child process management, restart limit, and periodic checks |
+| Student 3: Hüseyin Yılmaz | Logging, status reporting, Makefile, tests, and documentation |
+ 
 Module interfaces are described in [CONTRACT.md](docs/CONTRACT.md).
+
