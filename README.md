@@ -81,9 +81,12 @@ scenario's `watchdog.log` and console output.
 
 ### Test Results
 
-On WSL, `make -B all && make test` completed successfully on the
-integration branch. All seven scenarios passed, including both
-controlled-shutdown variants.
+On WSL (Ubuntu 24.04), `make -B all && make test` completed successfully on
+the merged `main` branch. All seven scenarios passed, including both
+controlled-shutdown variants. The full output is in
+[docs/TEST_RESULTS.md](docs/TEST_RESULTS.md), a sample log is in
+[docs/sample_log.txt](docs/sample_log.txt), and the project report is
+[docs/REPORT.pdf](docs/REPORT.pdf).
 
 ## Contributors
 
