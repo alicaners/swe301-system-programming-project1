@@ -1,0 +1,18 @@
+[2026-11-27 14:36:51] WATCHDOG_STARTED | workers=2
+[2026-11-27 14:36:51] PROCESS_STARTED | worker_id=1 pid=235 restart_count=0
+[2026-11-27 14:36:51] PROCESS_STARTED | worker_id=2 pid=236 restart_count=0
+[2026-11-27 14:36:51] PROCESS_CRASHED | worker_id=1 pid=235 exit_code=-1 signal=9 restart_count=0
+[2026-11-27 14:36:51] PROCESS_RESTARTED | worker_id=1 pid=241 restart_count=1
+[2026-11-27 14:36:52] PROCESS_CRASHED | worker_id=2 pid=236 exit_code=1 signal=0 restart_count=0
+[2026-11-27 14:36:52] PROCESS_RESTARTED | worker_id=2 pid=243 restart_count=1
+[2026-11-27 14:36:53] PROCESS_CRASHED | worker_id=2 pid=243 exit_code=1 signal=0 restart_count=1
+[2026-11-27 14:36:53] PROCESS_RESTARTED | worker_id=2 pid=244 restart_count=2
+[2026-11-27 14:36:54] PROCESS_CRASHED | worker_id=2 pid=244 exit_code=1 signal=0 restart_count=2
+[2026-11-27 14:36:54] PROCESS_RESTARTED | worker_id=2 pid=245 restart_count=3
+[2026-11-27 14:36:55] PROCESS_CRASHED | worker_id=2 pid=245 exit_code=1 signal=0 restart_count=3
+[2026-11-27 14:36:55] RESTART_LIMIT_REACHED | worker_id=2 pid=245 restart_count=3
+[2026-11-27 14:36:57] STATUS_REPORT | worker_id=1 pid=241 state=RUNNING restart_count=1
+[2026-11-27 14:36:57] STATUS_REPORT | worker_id=2 pid=245 state=RESTART_LIMIT_REACHED restart_count=3
+[2026-11-27 14:36:58] SHUTDOWN_STARTED | signal received
+[2026-11-27 14:36:58] PROCESS_EXITED | worker_id=1 pid=241 exit_code=0 signal=0 restart_count=1
+[2026-11-27 14:36:58] WATCHDOG_STOPPED | exit status=0
